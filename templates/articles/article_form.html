@@ -1,0 +1,324 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }} - NewsHub{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-4xl mx-auto">
+        <div class="text-center mb-8">
+            <div class="flex justify-center mb-4">
+                <div class="w-16 h-16 gradient-bg rounded-2xl flex items-center justify-center">
+                    <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
+                    </svg>
+                </div>
+            </div>
+            <h1 class="text-3xl font-display font-bold text-gray-900 mb-2">
+                {{ title }}
+            </h1>
+            <p class="text-gray-600">
+                {% if article %}Update your article{% else %}Create a new article{% endif %} and share your thoughts with the world
+            </p>
+        </div>
+
+        <div class="bg-white rounded-3xl shadow-xl border border-gray-100 p-8">
+            <form method="post" enctype="multipart/form-data" class="space-y-8">
+                {% csrf_token %}
+                
+                <!-- Title Field -->
+                <div>
+                    <label for="{{ form.title.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-2">
+                        Article Title *
+                    </label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
+                            </svg>
+                        </div>
+                        {{ form.title }}
+                    </div>
+                    {% if form.title.errors %}
+                        <div class="mt-3 bg-red-50 border border-red-200 rounded-xl p-3">
+                            <div class="flex">
+                                <svg class="h-5 w-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                <div class="ml-3">
+                                    <p class="text-sm text-red-800">{{ form.title.errors.0 }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Subtitle Field -->
+                <div>
+                    <label for="{{ form.subtitle.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-2">
+                        Subtitle (Optional)
+                    </label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"></path>
+                            </svg>
+                        </div>
+                        {{ form.subtitle }}
+                    </div>
+                    {% if form.subtitle.errors %}
+                        <div class="mt-3 bg-red-50 border border-red-200 rounded-xl p-3">
+                            <div class="flex">
+                                <svg class="h-5 w-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                <div class="ml-3">
+                                    <p class="text-sm text-red-800">{{ form.subtitle.errors.0 }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Content Field -->
+                <div>
+                    <label for="{{ form.content.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-2">
+                        Content *
+                    </label>
+                    {{ form.content }}
+                    {% if form.content.errors %}
+                        <div class="mt-3 bg-red-50 border border-red-200 rounded-xl p-3">
+                            <div class="flex">
+                                <svg class="h-5 w-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                <div class="ml-3">
+                                    <p class="text-sm text-red-800">{{ form.content.errors.0 }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Excerpt Field -->
+                <div>
+                    <label for="{{ form.excerpt.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-2">
+                        Excerpt
+                    </label>
+                    <textarea name="excerpt" rows="3" 
+                              class="w-full p-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-purple-500 focus:bg-white transition-all duration-200 bg-gray-50 resize-none text-gray-900"
+                              placeholder="A brief summary of your article...">{{ form.excerpt.value|default:'' }}</textarea>
+                    {% if form.excerpt.help_text %}
+                        <p class="mt-2 text-sm text-gray-500">{{ form.excerpt.help_text }}</p>
+                    {% endif %}
+                    {% if form.excerpt.errors %}
+                        <div class="mt-3 bg-red-50 border border-red-200 rounded-xl p-3">
+                            <div class="flex">
+                                <svg class="h-5 w-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                <div class="ml-3">
+                                    <p class="text-sm text-red-800">{{ form.excerpt.errors.0 }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Category and Status Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="{{ form.category.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-2">
+                            Category
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                                </svg>
+                            </div>
+                            {{ form.category }}
+                        </div>
+                        {% if form.category.errors %}
+                            <div class="mt-3 bg-red-50 border border-red-200 rounded-xl p-3">
+                                <div class="flex">
+                                    <svg class="h-5 w-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                    <div class="ml-3">
+                                        <p class="text-sm text-red-800">{{ form.category.errors.0 }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div>
+                        <label for="{{ form.status.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-2">
+                            Status
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                            </div>
+                            {{ form.status }}
+                        </div>
+                        {% if form.status.errors %}
+                            <div class="mt-3 bg-red-50 border border-red-200 rounded-xl p-3">
+                                <div class="flex">
+                                    <svg class="h-5 w-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                    <div class="ml-3">
+                                        <p class="text-sm text-red-800">{{ form.status.errors.0 }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Tags Field -->
+                <div>
+                    <label for="{{ form.tags.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-2">
+                        Tags
+                    </label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
+                            </svg>
+                        </div>
+                        {{ form.tags }}
+                    </div>
+                    {% if form.tags.help_text %}
+                        <p class="mt-2 text-sm text-gray-500">{{ form.tags.help_text }}</p>
+                    {% endif %}
+                    {% if form.tags.errors %}
+                        <div class="mt-3 bg-red-50 border border-red-200 rounded-xl p-3">
+                            <div class="flex">
+                                <svg class="h-5 w-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                <div class="ml-3">
+                                    <p class="text-sm text-red-800">{{ form.tags.errors.0 }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Featured Image Field -->
+                <div>
+                    <label for="{{ form.featured_image.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-2">
+                        Featured Image (Optional)
+                    </label>
+                    <div class="flex justify-center">
+                        <label class="relative cursor-pointer bg-purple-50 hover:bg-purple-100 rounded-xl px-6 py-8 border-2 border-purple-200 border-dashed transition-all duration-200 hover:border-purple-300 w-full max-w-md">
+                            <div class="text-center">
+                                <svg class="mx-auto h-12 w-12 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                </svg>
+                                <div class="mt-4 text-sm text-purple-600 font-medium">Upload featured image</div>
+                                <div class="mt-2 text-xs text-gray-500">PNG, JPG, GIF up to 10MB</div>
+                            </div>
+                            {{ form.featured_image }}
+                        </label>
+                    </div>
+                    {% if form.featured_image.errors %}
+                        <div class="mt-3 bg-red-50 border border-red-200 rounded-xl p-3">
+                            <div class="flex">
+                                <svg class="h-5 w-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                <div class="ml-3">
+                                    <p class="text-sm text-red-800">{{ form.featured_image.errors.0 }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Form Actions -->
+                <div class="flex flex-col sm:flex-row gap-4 pt-6 border-t border-gray-200">
+                    <button type="submit" class="group relative flex-1 flex justify-center py-3 px-4 border border-transparent text-sm font-semibold rounded-full text-white bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-105">
+                        <span class="absolute left-0 inset-y-0 flex items-center pl-3">
+                            {% if article %}
+                                <svg class="h-5 w-5 text-white group-hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                                </svg>
+                            {% else %}
+                                <svg class="h-5 w-5 text-white group-hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                                </svg>
+                            {% endif %}
+                        </span>
+                        {% if article %}Update Article{% else %}Create Article{% endif %}
+                    </button>
+                    <a href="{% if article %}{{ article.get_absolute_url }}{% else %}{% url 'article_list' %}{% endif %}" 
+                       class="group relative flex-1 flex justify-center py-3 px-4 border border-gray-300 text-sm font-medium rounded-full text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-all duration-200 shadow-md hover:shadow-lg">
+                        <span class="absolute left-0 inset-y-0 flex items-center pl-3">
+                            <svg class="h-5 w-5 text-gray-500 group-hover:text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </span>
+                        Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+input[type="text"], input[type="email"], select, textarea {
+    width: 100%;
+    padding: 12px 12px 12px 40px;
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    font-size: 16px;
+    transition: all 0.2s ease;
+    background-color: #fafafa;
+    color: #111827;
+}
+
+select {
+    padding-left: 40px;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+    background-position: right 8px center;
+    background-repeat: no-repeat;
+    background-size: 16px 12px;
+    padding-right: 40px;
+    appearance: none;
+}
+
+input[type="text"]:focus, input[type="email"]:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: #8b5cf6;
+    background-color: white;
+    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+}
+
+textarea {
+    padding: 12px 16px;
+}
+
+input[type="file"] {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* Content field styling (assuming it might be a rich text editor) */
+.form-group textarea[name="content"] {
+    min-height: 200px;
+}
+</style>
+{% endblock %}

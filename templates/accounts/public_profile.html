@@ -1,0 +1,173 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ profile_user.first_name }} {{ profile_user.last_name }} - NewsHub{% endblock %}
+
+{% block content %}
+<div class="mdl-grid">
+    <div class="mdl-cell mdl-cell--12-col">
+        <div class="mdl-card mdl-shadow--4dp" style="width: 100%;">
+            <div class="mdl-card__supporting-text" style="padding: 40px;">
+                <div class="mdl-grid">
+                    <div class="mdl-cell mdl-cell--3-col" style="text-align: center;">
+                        {% if profile.profile_picture %}
+                            <img src="{{ profile.profile_picture.url }}" 
+                                 alt="{{ profile_user.first_name }}" 
+                                 style="width: 150px; height: 150px; border-radius: 50%; object-fit: cover; border: 4px solid #3f51b5;">
+                        {% else %}
+                            <div style="width: 150px; height: 150px; background-color: #3f51b5; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto;">
+                                <i class="material-icons" style="font-size: 72px; color: white;">person</i>
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="mdl-cell mdl-cell--9-col">
+                        <h1 style="margin: 0 0 10px 0;">{{ profile_user.first_name }} {{ profile_user.last_name }}</h1>
+                        <h4 style="margin: 0 0 20px 0; color: #666;">@{{ profile_user.username }}</h4>
+                        
+                        {% if profile.bio %}
+                            <p style="font-size: 16px; line-height: 1.5; margin-bottom: 20px;">{{ profile.bio }}</p>
+                        {% endif %}
+                        
+                        <div style="display: flex; gap: 30px; margin-bottom: 20px;">
+                            <div style="text-align: center;">
+                                <h3 style="margin: 0; color: #3f51b5;">{{ user_stats.articles_count }}</h3>
+                                <p style="margin: 5px 0 0 0; color: #666;">Articles</p>
+                            </div>
+                            <div style="text-align: center;">
+                                <h3 style="margin: 0; color: #3f51b5;">{{ user_stats.total_views }}</h3>
+                                <p style="margin: 5px 0 0 0; color: #666;">Total Views</p>
+                            </div>
+                            <div style="text-align: center;">
+                                <h3 style="margin: 0; color: #3f51b5;">{{ user_stats.total_likes }}</h3>
+                                <p style="margin: 5px 0 0 0; color: #666;">Total Likes</p>
+                            </div>
+                        </div>
+                        
+                        {% if is_own_profile %}
+                            <a href="{% url 'profile' %}" class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored">
+                                Edit Profile
+                            </a>
+                        {% endif %}
+                        
+                        <small style="color: #999; display: block; margin-top: 15px;">
+                            Member since {{ profile.created_at|date:"F Y" }}
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mdl-cell mdl-cell--12-col">
+        <div class="mdl-card mdl-shadow--2dp" style="width: 100%;">
+            <div class="mdl-card__title">
+                <h2 class="mdl-card__title-text">
+                    {% if is_own_profile %}My Articles{% else %}Articles by {{ profile_user.first_name }}{% endif %}
+                </h2>
+            </div>
+        </div>
+    </div>
+
+    <div class="mdl-cell mdl-cell--12-col">
+        {% if articles %}
+            {% for article in articles %}
+                <div class="mdl-card mdl-shadow--2dp" style="width: 100%; margin-bottom: 20px;">
+                    {% if article.featured_image %}
+                        <div class="mdl-card__media" style="background-image: url('{{ article.featured_image.url }}'); height: 200px; background-size: cover; background-position: center;">
+                        </div>
+                    {% endif %}
+                    
+                    <div class="mdl-card__title">
+                        <h2 class="mdl-card__title-text">
+                            <a href="{{ article.get_absolute_url }}" style="text-decoration: none; color: inherit;">
+                                {{ article.title }}
+                            </a>
+                        </h2>
+                    </div>
+                    
+                    {% if article.subtitle %}
+                        <div class="mdl-card__subtitle-text" style="padding: 0 16px; color: #666;">
+                            {{ article.subtitle }}
+                        </div>
+                    {% endif %}
+                    
+                    <div class="mdl-card__supporting-text">
+                        <p>{{ article.excerpt }}</p>
+                        
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px;">
+                            <div>
+                                {% if article.category %}
+                                    <span class="mdl-chip">
+                                        <span class="mdl-chip__text">{{ article.category.name }}</span>
+                                    </span>
+                                {% endif %}
+                                {% if article.get_tags_list %}
+                                    {% for tag in article.get_tags_list|slice:":3" %}
+                                        <span class="mdl-chip">
+                                            <span class="mdl-chip__text">{{ tag }}</span>
+                                        </span>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                            <div>
+                                <small>
+                                    {{ article.reading_time }} min read •
+                                    {{ article.view_count }} views •
+                                    {{ article.like_count }} likes
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mdl-card__actions mdl-card--border">
+                        <a href="{{ article.get_absolute_url }}" class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect">
+                            Read Article
+                        </a>
+                        <small class="mdl-layout-spacer"></small>
+                        <small>{{ article.created_at|date:"M d, Y" }}</small>
+                    </div>
+                </div>
+            {% endfor %}
+            
+            {% if articles.has_other_pages %}
+                <div class="mdl-grid">
+                    <div class="mdl-cell mdl-cell--12-col" style="text-align: center;">
+                        {% if articles.has_previous %}
+                            <a href="?page={{ articles.previous_page_number }}" class="mdl-button mdl-js-button mdl-button--raised">
+                                Previous
+                            </a>
+                        {% endif %}
+                        
+                        <span style="margin: 0 20px;">
+                            Page {{ articles.number }} of {{ articles.paginator.num_pages }}
+                        </span>
+                        
+                        {% if articles.has_next %}
+                            <a href="?page={{ articles.next_page_number }}" class="mdl-button mdl-js-button mdl-button--raised">
+                                Next
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endif %}
+        {% else %}
+            <div class="mdl-card mdl-shadow--2dp" style="width: 100%;">
+                <div class="mdl-card__supporting-text" style="text-align: center; padding: 50px;">
+                    <h4>No published articles</h4>
+                    <p>
+                        {% if is_own_profile %}
+                            You haven't published any articles yet.
+                        {% else %}
+                            {{ profile_user.first_name }} hasn't published any articles yet.
+                        {% endif %}
+                    </p>
+                    {% if is_own_profile %}
+                        <a href="{% url 'article_create' %}" class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored">
+                            Write Your First Article
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

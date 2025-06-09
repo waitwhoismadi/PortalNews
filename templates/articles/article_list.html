@@ -1,0 +1,251 @@
+{% extends 'base.html' %}
+
+{% block title %}Discover Articles - NewsHub{% endblock %}
+
+{% block content %}
+<section class="bg-gradient-to-r from-purple-600 to-pink-600 py-16">
+    <div class="max-w-7xl mx-auto px-4 text-center text-white">
+        <h1 class="text-4xl md:text-5xl font-display font-bold mb-4">
+            Discover Amazing Stories
+        </h1>
+        <p class="text-xl text-white/90 max-w-2xl mx-auto">
+            Explore curated content from our community of writers and thought leaders
+        </p>
+    </div>
+</section>
+
+<section class="bg-white border-b border-gray-200 sticky top-16 z-40">
+    <div class="max-w-7xl mx-auto px-4 py-6">
+        <form method="get" class="flex flex-col md:flex-row gap-4 items-center">
+            <div class="flex-1 relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    </svg>
+                </div>
+                <input type="text" name="search" value="{{ search_query|default:'' }}" 
+                       placeholder="Search articles, authors, topics..." 
+                       class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-full focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white">
+            </div>
+            
+            <div class="relative">
+                <select name="category" class="appearance-none bg-gray-50 border border-gray-300 rounded-full px-6 py-3 pr-10 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 focus:bg-white">
+                    <option value="">All Categories</option>
+                    {% for category in categories %}
+                        <option value="{{ category.slug }}" {% if category.slug == selected_category.slug %}selected{% endif %}>
+                            {{ category.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+                <div class="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
+                    <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                </div>
+            </div>
+            
+            <button type="submit" class="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-8 py-3 rounded-full font-semibold hover:from-purple-700 hover:to-pink-700 transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-105">
+                Search
+            </button>
+        </form>
+    </div>
+</section>
+
+<section class="py-12 bg-gray-50">
+    <div class="max-w-7xl mx-auto px-4">
+        {% if articles %}
+            {% if search_query or selected_category %}
+                <div class="mb-8 p-4 bg-white rounded-2xl shadow-sm border border-gray-100">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-900">
+                                {% if search_query %}
+                                    Search results for "{{ search_query }}"
+                                {% endif %}
+                                {% if selected_category %}
+                                    {% if search_query %}in {{ selected_category.name }}{% else %}{{ selected_category.name }} Articles{% endif %}
+                                {% endif %}
+                            </h3>
+                            <p class="text-gray-600">{{ articles.paginator.count }} article{{ articles.paginator.count|pluralize }} found</p>
+                        </div>
+                        {% if search_query or selected_category %}
+                            <a href="{% url 'article_list' %}" class="text-purple-600 hover:text-purple-700 font-medium">
+                                Clear filters
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endif %}
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {% for article in articles %}
+                    <article class="bg-white rounded-2xl shadow-lg card-hover overflow-hidden border border-gray-100 group">
+                        <div class="relative overflow-hidden">
+                            {% if article.featured_image %}
+                                <img src="{{ article.featured_image.url }}" alt="{{ article.title }}" 
+                                     class="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300">
+                            {% else %}
+                                <div class="w-full h-48 bg-gradient-to-br from-purple-400 via-pink-400 to-indigo-500 flex items-center justify-center">
+                                    <svg class="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                    </svg>
+                                </div>
+                            {% endif %}
+                            
+                            {% if article.category %}
+                                <div class="absolute top-4 left-4">
+                                    <span class="bg-white/90 backdrop-blur-sm text-purple-600 px-3 py-1 rounded-full text-sm font-medium shadow-lg">
+                                        {{ article.category.name }}
+                                    </span>
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="p-6">
+                            <h2 class="text-xl font-bold text-gray-900 mb-3 line-clamp-2 group-hover:text-purple-600 transition-colors">
+                                <a href="{{ article.get_absolute_url }}">
+                                    {{ article.title }}
+                                </a>
+                            </h2>
+                            
+                            {% if article.subtitle %}
+                                <p class="text-gray-600 text-sm mb-3 line-clamp-2">{{ article.subtitle }}</p>
+                            {% endif %}
+                            
+                            <p class="text-gray-700 mb-4 line-clamp-3">{{ article.excerpt }}</p>
+                            
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="flex items-center space-x-2">
+                                    <div class="w-8 h-8 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full flex items-center justify-center">
+                                        <span class="text-white text-sm font-medium">
+                                            {{ article.author.first_name.0|default:article.author.username.0|upper }}
+                                        </span>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm font-medium text-gray-900">
+                                            <a href="{% url 'public_profile' article.author.username %}" class="hover:text-purple-600 transition-colors">
+                                                {{ article.author.first_name }} {{ article.author.last_name }}
+                                            </a>
+                                        </p>
+                                        <p class="text-xs text-gray-500">{{ article.created_at|date:"M d, Y" }}</p>
+                                    </div>
+                                </div>
+                                <div class="text-sm text-gray-500">
+                                    {{ article.reading_time }} min read
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-center justify-between pt-4 border-t border-gray-100">
+                                <div class="flex items-center space-x-4 text-sm text-gray-500">
+                                    <span class="flex items-center">
+                                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                        </svg>
+                                        {{ article.view_count }}
+                                    </span>
+                                    <span class="flex items-center">
+                                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                                        </svg>
+                                        {{ article.like_count }}
+                                    </span>
+                                    <span class="flex items-center">
+                                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                                        </svg>
+                                        {{ article.comment_count }}
+                                    </span>
+                                </div>
+                                
+                                {% if article.get_tags_list %}
+                                    <div class="flex flex-wrap gap-1">
+                                        {% for tag in article.get_tags_list|slice:":2" %}
+                                            <span class="bg-gray-100 text-gray-600 px-2 py-1 rounded-full text-xs">
+                                                #{{ tag }}
+                                            </span>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </article>
+                {% endfor %}
+            </div>
+            
+            {% if articles.has_other_pages %}
+                <div class="flex justify-center items-center space-x-4 mt-12">
+                    {% if articles.has_previous %}
+                        <a href="?page={{ articles.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if selected_category %}&category={{ selected_category.slug }}{% endif %}" 
+                           class="bg-white text-purple-600 px-6 py-3 rounded-full font-medium hover:bg-purple-50 transition-colors shadow-md border border-purple-200">
+                            ← Previous
+                        </a>
+                    {% endif %}
+                    
+                    <div class="flex items-center space-x-2">
+                        {% for num in articles.paginator.page_range %}
+                            {% if num == articles.number %}
+                                <span class="bg-gradient-to-r from-purple-600 to-pink-600 text-white w-10 h-10 rounded-full flex items-center justify-center font-medium">
+                                    {{ num }}
+                                </span>
+                            {% elif num > articles.number|add:'-3' and num < articles.number|add:'3' %}
+                                <a href="?page={{ num }}{% if search_query %}&search={{ search_query }}{% endif %}{% if selected_category %}&category={{ selected_category.slug }}{% endif %}" 
+                                   class="bg-white text-gray-600 w-10 h-10 rounded-full flex items-center justify-center font-medium hover:bg-purple-50 hover:text-purple-600 transition-colors border border-gray-200">
+                                    {{ num }}
+                                </a>
+                            {% elif num == 1 or num == articles.paginator.num_pages %}
+                                <a href="?page={{ num }}{% if search_query %}&search={{ search_query }}{% endif %}{% if selected_category %}&category={{ selected_category.slug }}{% endif %}" 
+                                   class="bg-white text-gray-600 w-10 h-10 rounded-full flex items-center justify-center font-medium hover:bg-purple-50 hover:text-purple-600 transition-colors border border-gray-200">
+                                    {{ num }}
+                                </a>
+                                {% if num == 1 and articles.number > 4 %}
+                                    <span class="text-gray-400">...</span>
+                                {% elif num == articles.paginator.num_pages and articles.number < articles.paginator.num_pages|add:'-3' %}
+                                    <span class="text-gray-400">...</span>
+                                {% endif %}
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                    
+                    {% if articles.has_next %}
+                        <a href="?page={{ articles.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if selected_category %}&category={{ selected_category.slug }}{% endif %}" 
+                           class="bg-white text-purple-600 px-6 py-3 rounded-full font-medium hover:bg-purple-50 transition-colors shadow-md border border-purple-200">
+                            Next →
+                        </a>
+                    {% endif %}
+                </div>
+            {% endif %}
+        {% else %}
+            <div class="text-center py-20">
+                <div class="w-24 h-24 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <svg class="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    </svg>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-900 mb-4">
+                    {% if search_query %}No articles found{% else %}No articles yet{% endif %}
+                </h3>
+                <p class="text-gray-600 mb-8 max-w-md mx-auto">
+                    {% if search_query %}
+                        Try adjusting your search terms or browse all articles.
+                    {% else %}
+                        Be the first to share your story with our community!
+                    {% endif %}
+                </p>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    {% if search_query %}
+                        <a href="{% url 'article_list' %}" class="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-8 py-4 rounded-full font-semibold hover:from-purple-700 hover:to-pink-700 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105">
+                            Browse All Articles
+                        </a>
+                    {% endif %}
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'article_create' %}" class="bg-white text-purple-600 px-8 py-4 rounded-full font-semibold hover:bg-purple-50 transition-colors shadow-md border border-purple-200">
+                            Write First Article
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}
