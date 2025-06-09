@@ -1,0 +1,64 @@
+{% extends 'emails/base_email.html' %}
+
+{% block title %}Your article "{{ article.title }}" has been approved!{% endblock %}
+
+{% block header_subtitle %}
+<p style="margin: 10px 0 0 0; font-size: 18px; opacity: 0.9;">🎉 Great news about your article!</p>
+{% endblock %}
+
+{% block content %}
+<h2>✅ Article Approved!</h2>
+
+<p>Hi {{ author.first_name|default:author.username }},</p>
+
+<p>Excellent news! Your article has been reviewed by our moderation team and has been <strong>approved for publication</strong>.</p>
+
+<div class="success-box">
+    <h3 style="margin-top: 0; color: #155724;">📝 "{{ article.title }}"</h3>
+    <p style="color: #155724; margin-bottom: 10px;">Your article is now live and available for all {{ site_name }} readers to discover and enjoy!</p>
+    {% if article.category %}
+        <p style="color: #155724; margin-bottom: 0;"><strong>Category:</strong> {{ article.category.name }}</p>
+    {% endif %}
+</div>
+
+<div class="highlight-box">
+    <h3 style="margin-top: 0; color: #004085;">📊 Article Details:</h3>
+    <ul style="color: #004085; margin-bottom: 0;">
+        <li><strong>Published:</strong> {{ article.published_at|date:"F d, Y - g:i A" }}</li>
+        <li><strong>Reading Time:</strong> {{ article.reading_time }} minute{{ article.reading_time|pluralize }}</li>
+        <li><strong>Word Count:</strong> {{ article.word_count }} words</li>
+        {% if article.moderated_by %}
+            <li><strong>Reviewed by:</strong> {{ article.moderated_by.first_name }} {{ article.moderated_by.last_name }}</li>
+        {% endif %}
+    </ul>
+</div>
+
+{% if article.subtitle %}
+<div style="background-color: #f8f9fa; padding: 15px; border-radius: 8px; margin: 20px 0; font-style: italic;">
+    "{{ article.subtitle }}"
+</div>
+{% endif %}
+
+<div style="text-align: center; margin: 30px 0;">
+    <a href="{{ article_url }}" class="button">📖 View Your Published Article</a>
+</div>
+
+<p><strong>What happens next?</strong></p>
+<ul>
+    <li>🌐 Your article is now discoverable by all {{ site_name }} readers</li>
+    <li>📈 You can track views, likes, and comments in your analytics dashboard</li>
+    <li>🔔 You'll receive notifications when readers engage with your content</li>
+    <li>✍️ Keep writing! Our community loves fresh, quality content</li>
+</ul>
+
+<div class="highlight-box">
+    <h3 style="margin-top: 0; color: #004085;">💡 Promote Your Article:</h3>
+    <p style="color: #004085; margin-bottom: 0;">Share your published article on social media, with friends, or in relevant communities to increase its reach and engagement!</p>
+</div>
+
+<p>Thank you for contributing quality content to our community. We appreciate writers like you who help make {{ site_name }} a great place for everyone.</p>
+
+<p>Keep up the great work!</p>
+
+<p><strong>The {{ site_name }} Moderation Team</strong></p>
+{% endblock %}

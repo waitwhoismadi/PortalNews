@@ -1,0 +1,48 @@
+{% extends 'emails/base_email.html' %}
+
+{% block title %}Welcome to {{ site_name }}!{% endblock %}
+
+{% block header_subtitle %}
+<p style="margin: 10px 0 0 0; font-size: 18px; opacity: 0.9;">Welcome to our community!</p>
+{% endblock %}
+
+{% block content %}
+<h2>🎉 Welcome {{ user.first_name }}!</h2>
+
+<p>Hi {{ user.first_name|default:user.username }},</p>
+
+<p>Welcome to <strong>{{ site_name }}</strong>! We're thrilled to have you join our community of writers and readers who are passionate about sharing amazing stories and discovering quality content.</p>
+
+<div class="success-box">
+    <h3 style="margin-top: 0; color: #155724;">Your account is ready!</h3>
+    <p style="margin-bottom: 0; color: #155724;">You can now start exploring articles, following your favorite writers, and sharing your own stories with our community.</p>
+</div>
+
+<p><strong>Here's what you can do next:</strong></p>
+<ul>
+    <li>📖 <strong>Explore Articles:</strong> Discover amazing content from our community</li>
+    <li>✍️ <strong>Write Your First Story:</strong> Share your thoughts and experiences</li>
+    <li>👤 <strong>Complete Your Profile:</strong> Help others get to know you better</li>
+    <li>🎯 <strong>Set Preferences:</strong> Get personalized recommendations</li>
+</ul>
+
+<div style="text-align: center; margin: 30px 0;">
+    <a href="{{ site_url }}" class="button">Start Exploring {{ site_name }}</a>
+</div>
+
+<div class="highlight-box">
+    <h3 style="margin-top: 0; color: #004085;">💡 Pro Tips for New Members:</h3>
+    <ul style="color: #004085; margin-bottom: 0;">
+        <li>Use our AI-powered recommendation system to discover content you'll love</li>
+        <li>Engage with the community by commenting and liking articles</li>
+        <li>Follow the moderation guidelines when publishing your own articles</li>
+        <li>Check your email notifications settings in your profile</li>
+    </ul>
+</div>
+
+<p>If you have any questions or need help getting started, don't hesitate to reach out to our community support team.</p>
+
+<p>Happy reading and writing!</p>
+
+<p><strong>The {{ site_name }} Team</strong></p>
+{% endblock %}

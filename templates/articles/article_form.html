@@ -242,7 +242,7 @@
 
                 <!-- Form Actions -->
                 <div class="flex flex-col sm:flex-row gap-4 pt-6 border-t border-gray-200">
-                    <button type="submit" class="group relative flex-1 flex justify-center py-3 px-4 border border-transparent text-sm font-semibold rounded-full text-white bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-105">
+                    <button type="submit" id="submitBtn" class="group relative flex-1 flex justify-center py-3 px-4 border border-transparent text-sm font-semibold rounded-full text-white bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-105">
                         <span class="absolute left-0 inset-y-0 flex items-center pl-3">
                             {% if article %}
                                 <svg class="h-5 w-5 text-white group-hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -267,6 +267,26 @@
                     </a>
                 </div>
             </form>
+        </div>
+    </div>
+</div>
+
+<div id="moderationPopup" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+    <div class="bg-white rounded-2xl p-8 max-w-md mx-4 text-center transform scale-95 transition-transform duration-200">
+        <div class="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg class="w-8 h-8 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+        </div>
+        <h3 class="text-xl font-bold text-gray-900 mb-2">Article Submitted for Review</h3>
+        <p class="text-gray-600 mb-6">Your article has been sent to our moderators for review. You'll be notified once it's approved and published.</p>
+        <div class="flex gap-3">
+            <button onclick="submitForReview()" class="flex-1 bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-3 rounded-full font-semibold hover:from-purple-700 hover:to-pink-700 transition-all duration-200">
+                Submit for Review
+            </button>
+            <button onclick="hidePopup()" class="flex-1 bg-gray-100 text-gray-700 px-6 py-3 rounded-full font-semibold hover:bg-gray-200 transition-colors">
+                Cancel
+            </button>
         </div>
     </div>
 </div>
@@ -316,9 +336,68 @@ input[type="file"] {
     border: 0;
 }
 
-/* Content field styling (assuming it might be a rich text editor) */
 .form-group textarea[name="content"] {
     min-height: 200px;
 }
 </style>
+
+
+<script>
+    let originalFormAction = null;
+
+    function handleFormSubmit(event) {
+        const statusSelect = document.querySelector('select[name="status"]');
+        
+        if (statusSelect && statusSelect.value === 'published') {
+            event.preventDefault();
+            showModerationPopup();
+            return false;
+        }
+        
+        return true;
+    }
+
+    function showModerationPopup() {
+        const popup = document.getElementById('moderationPopup');
+        popup.classList.remove('hidden');
+        setTimeout(() => {
+            popup.querySelector('.transform').classList.add('scale-100');
+            popup.querySelector('.transform').classList.remove('scale-95');
+        }, 50);
+    }
+
+    function hidePopup() {
+        const popup = document.getElementById('moderationPopup');
+        popup.querySelector('.transform').classList.add('scale-95');
+        popup.querySelector('.transform').classList.remove('scale-100');
+        setTimeout(() => {
+            popup.classList.add('hidden');
+        }, 200);
+    }
+
+    function submitForReview() {
+        const statusSelect = document.querySelector('select[name="status"]');
+        const form = document.querySelector('form');
+        
+        statusSelect.value = 'pending_approval';
+        
+        form.removeEventListener('submit', handleFormSubmit);
+        
+        form.submit();
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.querySelector('form');
+        if (form) {
+            form.addEventListener('submit', handleFormSubmit);
+        }
+    });
+
+    document.getElementById('moderationPopup').addEventListener('click', function(e) {
+        if (e.target === this) {
+            hidePopup();
+        }
+    });
+</script>
+
 {% endblock %}

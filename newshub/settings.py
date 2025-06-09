@@ -138,3 +138,21 @@ LOGOUT_REDIRECT_URL = '/'
 
 # Templates
 TEMPLATES[0]['DIRS'] = [BASE_DIR / 'templates']
+
+# Email Configuration
+# For development - prints emails to console
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+# For production - use your email service (Gmail, SendGrid, etc.)
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'madi.baidolda@gmail.com'
+EMAIL_HOST_PASSWORD = 'aowksfgydpsbrmxa'
+
+DEFAULT_FROM_EMAIL = 'NewsHub <noreply@newshub.com>'
+EMAIL_SUBJECT_PREFIX = '[NewsHub] '
+
+SITE_URL = 'http://127.0.0.1:8000' 
+SITE_NAME = 'NewsHub'

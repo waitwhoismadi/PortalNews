@@ -8,6 +8,7 @@ from django.core.paginator import Paginator
 from django.db.models import Sum
 from .forms import CustomUserCreationForm, CustomAuthenticationForm, UserProfileForm
 from .models import UserProfile
+from .email_utils import send_welcome_email
 from articles.models import Article
 
 class CustomLoginView(LoginView):
@@ -20,7 +21,19 @@ def register_view(request):
         if form.is_valid():
             user = form.save()
             username = form.cleaned_data.get('username')
-            messages.success(request, f'Account created for {username}! You can now log in.')
+            
+            # Send welcome email
+            if user.email:
+                try:
+                    send_welcome_email(user)
+                    messages.success(request, f'Account created for {username}! Welcome email sent to {user.email}.')
+                except Exception as e:
+                    messages.success(request, f'Account created for {username}! You can now log in.')
+                    messages.warning(request, 'Welcome email could not be sent, but your account is ready.')
+            else:
+                messages.success(request, f'Account created for {username}! You can now log in.')
+            
+            # Authenticate and login user
             user = authenticate(username=user.username, password=form.cleaned_data['password1'])
             if user:
                 login(request, user)

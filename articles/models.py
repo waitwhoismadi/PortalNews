@@ -51,7 +51,19 @@ class Article(models.Model):
     
     reading_time = models.PositiveIntegerField(default=0, help_text="Estimated reading time in minutes")
     word_count = models.PositiveIntegerField(default=0)
-    
+
+    STATUS_CHOICES = [
+        ('draft', 'Draft'),
+        ('pending_approval', 'Pending Approval'),
+        ('published', 'Published'),
+        ('rejected', 'Rejected'),
+        ('archived', 'Archived'),
+    ]
+
+    moderated_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='moderated_articles')
+    moderation_date = models.DateTimeField(null=True, blank=True)
+    rejection_reason = models.TextField(blank=True, max_length=500)
+        
     class Meta:
         ordering = ['-created_at']
         indexes = [

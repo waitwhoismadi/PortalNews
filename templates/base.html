@@ -109,6 +109,11 @@
                         <a href="{% url 'analytics_dashboard' %}" class="text-gray-600 hover:text-purple-600 font-medium transition-colors">
                             Analytics
                         </a>
+                        {% if user.is_staff %}
+                            <a href="{% url 'moderator_dashboard' %}" class="text-gray-600 hover:text-purple-600 font-medium transition-colors">
+                                Moderator
+                            </a>
+                        {% endif %}
                         
                         <div class="relative group">
                             <button class="flex items-center space-x-2 text-gray-600 hover:text-purple-600 font-medium">
@@ -159,24 +164,66 @@
     </nav>
 
     {% if messages %}
-        <div class="fixed top-20 right-4 z-50 space-y-2">
+        <div id="messageContainer" class="fixed top-20 right-4 z-50 space-y-2">
             {% for message in messages %}
-                <div class="bg-white border-l-4 {% if message.tags == 'success' %}border-green-500{% elif message.tags == 'error' %}border-red-500{% else %}border-blue-500{% endif %} rounded-lg shadow-lg p-4 max-w-sm">
-                    <div class="flex items-center">
-                        {% if message.tags == 'success' %}
-                            <svg class="w-5 h-5 text-green-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                            </svg>
-                        {% elif message.tags == 'error' %}
-                            <svg class="w-5 h-5 text-red-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="message-alert bg-white border-l-4 {% if message.tags == 'success' %}border-green-500{% elif message.tags == 'error' %}border-red-500{% elif message.tags == 'warning' %}border-orange-500{% else %}border-blue-500{% endif %} rounded-lg shadow-lg p-4 max-w-sm transform transition-all duration-300 translate-x-0 opacity-100">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                            {% if message.tags == 'success' %}
+                                <svg class="w-5 h-5 text-green-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                </svg>
+                            {% elif message.tags == 'error' %}
+                                <svg class="w-5 h-5 text-red-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
+                            {% elif message.tags == 'warning' %}
+                                <svg class="w-5 h-5 text-orange-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                            {% else %}
+                                <svg class="w-5 h-5 text-blue-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                            {% endif %}
+                            <p class="text-gray-800 text-sm">{{ message }}</p>
+                        </div>
+                        <button onclick="closeMessage(this)" class="ml-3 text-gray-400 hover:text-gray-600 transition-colors">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                             </svg>
-                        {% endif %}
-                        <p class="text-gray-800">{{ message }}</p>
+                        </button>
                     </div>
                 </div>
             {% endfor %}
         </div>
+        
+        <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const messages = document.querySelectorAll('.message-alert');
+            messages.forEach(function(message, index) {
+                const delay = {% if message.tags == 'error' %}6000{% else %}4000{% endif %} + (index * 500);
+                
+                setTimeout(function() {
+                    closeMessage(message.querySelector('button'));
+                }, delay);
+            });
+        });
+        
+        function closeMessage(button) {
+            const messageDiv = button.closest('.message-alert');
+            messageDiv.classList.add('translate-x-full', 'opacity-0');
+            
+            setTimeout(function() {
+                messageDiv.remove();
+                
+                const container = document.getElementById('messageContainer');
+                if (container && container.children.length === 0) {
+                    container.remove();
+                }
+            }, 300);
+        }
+        </script>
     {% endif %}
 
     <main class="min-h-screen">

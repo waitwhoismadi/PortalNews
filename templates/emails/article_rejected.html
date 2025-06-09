@@ -1,0 +1,73 @@
+{% extends 'emails/base_email.html' %}
+
+{% block title %}Your article "{{ article.title }}" needs revision{% endblock %}
+
+{% block header_subtitle %}
+<p style="margin: 10px 0 0 0; font-size: 18px; opacity: 0.9;">📝 Feedback on your submission</p>
+{% endblock %}
+
+{% block content %}
+<h2>📋 Article Review Feedback</h2>
+
+<p>Hi {{ author.first_name|default:author.username }},</p>
+
+<p>Thank you for submitting your article to {{ site_name }}. After careful review, our moderation team has provided feedback to help you improve your content before publication.</p>
+
+<div class="warning-box">
+    <h3 style="margin-top: 0; color: #856404;">📝 "{{ article.title }}"</h3>
+    <p style="color: #856404; margin-bottom: 0;">Your article needs some revisions before it can be published. Please review the feedback below and resubmit when ready.</p>
+</div>
+
+{% if rejection_reason %}
+<div class="error-box">
+    <h3 style="margin-top: 0; color: #721c24;">💬 Feedback from our moderation team:</h3>
+    <p style="color: #721c24; margin-bottom: 0; font-weight: 500; line-height: 1.6;">{{ rejection_reason }}</p>
+</div>
+{% endif %}
+
+<div class="highlight-box">
+    <h3 style="margin-top: 0; color: #004085;">📊 Article Details:</h3>
+    <ul style="color: #004085; margin-bottom: 0;">
+        <li><strong>Submitted:</strong> {{ article.created_at|date:"F d, Y - g:i A" }}</li>
+        <li><strong>Reading Time:</strong> {{ article.reading_time }} minute{{ article.reading_time|pluralize }}</li>
+        <li><strong>Word Count:</strong> {{ article.word_count }} words</li>
+        {% if moderator %}
+            <li><strong>Reviewed by:</strong> {{ moderator.first_name }} {{ moderator.last_name }}</li>
+        {% endif %}
+        {% if article.category %}
+            <li><strong>Category:</strong> {{ article.category.name }}</li>
+        {% endif %}
+    </ul>
+</div>
+
+<p><strong>📝 Next Steps:</strong></p>
+<ul>
+    <li>📖 Review the feedback provided above carefully</li>
+    <li>✏️ Edit your article to address the concerns mentioned</li>
+    <li>🔍 Double-check for grammar, spelling, and formatting</li>
+    <li>📤 Resubmit your article for review when ready</li>
+</ul>
+
+<div style="text-align: center; margin: 30px 0;">
+    <a href="{{ site_url }}/articles/my-articles/" class="button">📝 Edit Your Article</a>
+</div>
+
+<div class="highlight-box">
+    <h3 style="margin-top: 0; color: #004085;">💡 Tips for Successful Publication:</h3>
+    <ul style="color: #004085; margin-bottom: 0;">
+        <li>Ensure your content is original and adds value to our community</li>
+        <li>Use clear, engaging language that's appropriate for your audience</li>
+        <li>Include relevant examples or sources to support your points</li>
+        <li>Follow our community guidelines and content policy</li>
+        <li>Proofread for grammar, spelling, and formatting consistency</li>
+    </ul>
+</div>
+
+<p>Don't be discouraged! Many of our most successful articles went through revisions. Our goal is to help you create the best possible content for our community.</p>
+
+<p>If you have any questions about the feedback or need clarification, please don't hesitate to reach out to our moderation team.</p>
+
+<p>We look forward to seeing your revised article!</p>
+
+<p><strong>The {{ site_name }} Moderation Team</strong></p>
+{% endblock %}

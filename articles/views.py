@@ -1,5 +1,5 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from django.core.paginator import Paginator
 from django.db.models import Q, F
@@ -10,6 +10,7 @@ from .forms import ArticleForm, CategoryForm, CommentForm
 from .analytics import AuthorAnalytics
 
 def article_list(request):
+    # Exclude pending and rejected articles from public view
     articles = Article.objects.filter(status='published').select_related('author', 'category')
     
     search_query = request.GET.get('search')
@@ -112,11 +113,26 @@ def article_create(request):
         if form.is_valid():
             article = form.save(commit=False)
             article.author = request.user
+            
+            # If user is trying to publish, set to pending_approval instead
             if article.status == 'published':
-                article.published_at = timezone.now()
-            article.save()
-            messages.success(request, f'Article "{article.title}" created successfully!')
-            return redirect('article_detail', slug=article.slug)
+                article.status = 'pending_approval'
+                article.save()
+                
+                # Return JSON response for AJAX popup
+                if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                    return JsonResponse({
+                        'status': 'pending_approval',
+                        'message': 'Your article has been submitted for moderation review. You will be notified once it\'s approved.',
+                        'redirect_url': f'/articles/{article.slug}/'
+                    })
+                
+                messages.info(request, 'Your article has been submitted for moderation review.')
+                return redirect('my_articles')
+            else:
+                article.save()
+                messages.success(request, f'Article "{article.title}" created successfully!')
+                return redirect('article_detail', slug=article.slug)
     else:
         form = ArticleForm()
     
@@ -133,11 +149,28 @@ def article_edit(request, slug):
         form = ArticleForm(request.POST, request.FILES, instance=article)
         if form.is_valid():
             article = form.save(commit=False)
-            if article.status == 'published' and not article.published_at:
-                article.published_at = timezone.now()
-            article.save()
-            messages.success(request, f'Article "{article.title}" updated successfully!')
-            return redirect('article_detail', slug=article.slug)
+            
+            # If user is trying to publish, set to pending_approval instead
+            if article.status == 'published' and article.moderated_by is None:
+                article.status = 'pending_approval'
+                article.save()
+                
+                # Return JSON response for AJAX popup
+                if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                    return JsonResponse({
+                        'status': 'pending_approval',
+                        'message': 'Your article has been submitted for moderation review. You will be notified once it\'s approved.',
+                        'redirect_url': '/articles/my-articles/'
+                    })
+                
+                messages.info(request, 'Your article has been submitted for moderation review.')
+                return redirect('my_articles')
+            else:
+                if article.status == 'published' and not article.published_at:
+                    article.published_at = timezone.now()
+                article.save()
+                messages.success(request, f'Article "{article.title}" updated successfully!')
+                return redirect('article_detail', slug=article.slug)
     else:
         form = ArticleForm(instance=article)
     
@@ -231,3 +264,88 @@ def delete_comment(request, comment_id):
         messages.error(request, 'Permission denied.')
     
     return redirect('article_detail', slug=comment.article.slug)
+
+# Moderator Views
+@user_passes_test(lambda u: u.is_staff)
+def moderator_dashboard(request):
+    pending_articles = Article.objects.filter(status='pending_approval').select_related('author', 'category').order_by('-created_at')
+    rejected_articles = Article.objects.filter(status='rejected').select_related('author', 'moderated_by').order_by('-moderation_date')[:10]
+    
+    # Statistics
+    total_pending = pending_articles.count()
+    total_approved_today = Article.objects.filter(
+        status='published',
+        moderation_date__date=timezone.now().date()
+    ).count()
+    total_rejected_today = Article.objects.filter(
+        status='rejected',
+        moderation_date__date=timezone.now().date()
+    ).count()
+    
+    context = {
+        'pending_articles': pending_articles,
+        'rejected_articles': rejected_articles,
+        'total_pending': total_pending,
+        'total_approved_today': total_approved_today,
+        'total_rejected_today': total_rejected_today,
+    }
+    return render(request, 'articles/moderator_dashboard.html', context)
+
+@user_passes_test(lambda u: u.is_staff)
+def approve_article(request, article_id):
+    article = get_object_or_404(Article, id=article_id, status='pending_approval')
+    article.status = 'published'
+    article.published_at = timezone.now()
+    article.moderated_by = request.user
+    article.moderation_date = timezone.now()
+    article.save()
+    
+    # Send approval email
+    from accounts.email_utils import send_article_approval_email
+    try:
+        if article.author.email and article.author.userprofile.email_notifications:
+            send_article_approval_email(article)
+            messages.success(request, f'Article "{article.title}" has been approved and published. Approval email sent to author.')
+        else:
+            messages.success(request, f'Article "{article.title}" has been approved and published.')
+    except Exception as e:
+        messages.success(request, f'Article "{article.title}" has been approved and published.')
+        messages.warning(request, 'Approval email could not be sent to author.')
+    
+    return redirect('moderator_dashboard')
+
+@user_passes_test(lambda u: u.is_staff)
+def reject_article(request, article_id):
+    article = get_object_or_404(Article, id=article_id, status='pending_approval')
+    if request.method == 'POST':
+        rejection_reason = request.POST.get('rejection_reason', '')
+        article.status = 'rejected'
+        article.rejection_reason = rejection_reason
+        article.moderated_by = request.user
+        article.moderation_date = timezone.now()
+        article.save()
+        
+        # Send rejection email
+        from accounts.email_utils import send_article_rejection_email
+        try:
+            if article.author.email and article.author.userprofile.email_notifications:
+                send_article_rejection_email(article)
+                messages.success(request, f'Article "{article.title}" has been rejected. Feedback email sent to author.')
+            else:
+                messages.success(request, f'Article "{article.title}" has been rejected.')
+        except Exception as e:
+            messages.success(request, f'Article "{article.title}" has been rejected.')
+            messages.warning(request, 'Rejection email could not be sent to author.')
+        
+        return redirect('moderator_dashboard')
+    return render(request, 'articles/reject_article.html', {'article': article})
+
+@user_passes_test(lambda u: u.is_staff)
+def delete_article_admin(request, article_id):
+    article = get_object_or_404(Article, id=article_id)
+    if request.method == 'POST':
+        title = article.title
+        article.delete()
+        messages.success(request, f'Article "{title}" has been deleted.')
+        return redirect('moderator_dashboard')
+    return render(request, 'articles/delete_article_confirm.html', {'article': article})

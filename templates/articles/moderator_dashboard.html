@@ -1,0 +1,202 @@
+{% extends 'base.html' %}
+
+{% block title %}Moderator Dashboard - NewsHub{% endblock %}
+
+{% block content %}
+<section class="bg-gradient-to-r from-indigo-600 to-purple-600 py-16">
+    <div class="max-w-7xl mx-auto px-4 text-center text-white">
+        <h1 class="text-4xl md:text-5xl font-display font-bold mb-4">
+            🛡️ Moderator Dashboard
+        </h1>
+        <p class="text-xl text-white/90 max-w-2xl mx-auto">
+            Review and manage article submissions
+        </p>
+    </div>
+</section>
+
+<section class="py-12 bg-gray-50">
+    <div class="max-w-7xl mx-auto px-4">
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+            <div class="bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">Pending Review</p>
+                        <p class="text-3xl font-bold text-orange-600">{{ total_pending }}</p>
+                    </div>
+                    <div class="w-12 h-12 bg-gradient-to-r from-orange-500 to-red-500 rounded-full flex items-center justify-center">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">Approved Today</p>
+                        <p class="text-3xl font-bold text-green-600">{{ total_approved_today }}</p>
+                    </div>
+                    <div class="w-12 h-12 bg-gradient-to-r from-green-500 to-teal-500 rounded-full flex items-center justify-center">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">Rejected Today</p>
+                        <p class="text-3xl font-bold text-red-600">{{ total_rejected_today }}</p>
+                    </div>
+                    <div class="w-12 h-12 bg-gradient-to-r from-red-500 to-pink-500 rounded-full flex items-center justify-center">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden mb-8">
+            <div class="p-6 border-b border-gray-200 bg-gradient-to-r from-orange-50 to-red-50">
+                <h2 class="text-2xl font-bold text-gray-900 flex items-center">
+                    <svg class="w-6 h-6 mr-3 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    Articles Pending Review ({{ total_pending }})
+                </h2>
+                <p class="text-gray-600 mt-1">Review articles submitted for publication</p>
+            </div>
+            
+            {% if pending_articles %}
+                <div class="divide-y divide-gray-200">
+                    {% for article in pending_articles %}
+                        <div class="p-6 hover:bg-gray-50 transition-colors">
+                            <div class="flex items-start justify-between">
+                                <div class="flex-1 mr-6">
+                                    <div class="flex items-center mb-2">
+                                        <h3 class="text-lg font-semibold text-gray-900 mr-3">
+                                            {{ article.title }}
+                                        </h3>
+                                        {% if article.category %}
+                                            <span class="bg-purple-100 text-purple-600 px-2 py-1 rounded-full text-xs font-medium">
+                                                {{ article.category.name }}
+                                            </span>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    {% if article.subtitle %}
+                                        <p class="text-gray-600 font-medium mb-2">{{ article.subtitle }}</p>
+                                    {% endif %}
+                                    
+                                    <p class="text-gray-700 mb-3">{{ article.excerpt|truncatewords:30 }}</p>
+                                    
+                                    <div class="flex items-center space-x-4 text-sm text-gray-500 mb-4">
+                                        <span class="flex items-center">
+                                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                                            </svg>
+                                            {{ article.author.first_name }} {{ article.author.last_name }}
+                                        </span>
+                                        <span class="flex items-center">
+                                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                            </svg>
+                                            {{ article.reading_time }} min read
+                                        </span>
+                                        <span class="flex items-center">
+                                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                            </svg>
+                                            {{ article.created_at|date:"M d, Y - g:i A" }}
+                                        </span>
+                                    </div>
+                                    
+                                    <div class="bg-gray-50 rounded-lg p-4 mb-4">
+                                        <h4 class="font-medium text-gray-900 mb-2">Content Preview:</h4>
+                                        <div class="text-gray-700 text-sm">
+                                            {{ article.content|linebreaks|truncatewords:50 }}
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex flex-col space-y-2 min-w-fit">
+                                    <a href="{% url 'approve_article' article.id %}" 
+                                       class="bg-green-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-green-700 transition-colors text-center"
+                                       onclick="return confirm('Approve this article for publication?')">
+                                        ✅ Approve
+                                    </a>
+                                    <a href="{% url 'reject_article' article.id %}" 
+                                       class="bg-red-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-red-700 transition-colors text-center">
+                                        ❌ Reject
+                                    </a>
+                                    <a href="{% url 'delete_article_admin' article.id %}" 
+                                       class="bg-gray-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-gray-700 transition-colors text-center"
+                                       onclick="return confirm('Delete this article permanently?')">
+                                        🗑️ Delete
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="p-12 text-center">
+                    <svg class="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                    </svg>
+                    <h3 class="text-lg font-medium text-gray-900 mb-2">No articles pending review</h3>
+                    <p class="text-gray-500">All caught up! New submissions will appear here.</p>
+                </div>
+            {% endif %}
+        </div>
+
+        {% if rejected_articles %}
+            <div class="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+                <div class="p-6 border-b border-gray-200 bg-gradient-to-r from-red-50 to-pink-50">
+                    <h3 class="text-xl font-bold text-gray-900 flex items-center">
+                        <svg class="w-5 h-5 mr-2 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                        Recently Rejected Articles
+                    </h3>
+                    <p class="text-gray-600 text-sm mt-1">Articles that were recently rejected</p>
+                </div>
+                
+                <div class="divide-y divide-gray-200 max-h-96 overflow-y-auto">
+                    {% for article in rejected_articles %}
+                        <div class="p-4">
+                            <div class="flex items-start justify-between">
+                                <div class="flex-1">
+                                    <h4 class="font-medium text-gray-900 mb-1">{{ article.title|truncatechars:60 }}</h4>
+                                    <div class="text-sm text-gray-500 mb-2">
+                                        By {{ article.author.first_name }} {{ article.author.last_name }} • 
+                                        Rejected {{ article.moderation_date|date:"M d, Y" }}
+                                        {% if article.moderated_by %}by {{ article.moderated_by.first_name }} {{ article.moderated_by.last_name }}{% endif %}
+                                    </div>
+                                    {% if article.rejection_reason %}
+                                        <div class="bg-red-50 border border-red-200 rounded-lg p-3">
+                                            <p class="text-sm text-red-800"><strong>Reason:</strong> {{ article.rejection_reason }}</p>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <a href="{% url 'delete_article_admin' article.id %}" 
+                                   class="ml-4 text-red-600 hover:text-red-800 p-2 rounded-full hover:bg-red-50"
+                                   onclick="return confirm('Delete this rejected article permanently?')">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                    </svg>
+                                </a>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

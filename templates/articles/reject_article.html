@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+
+{% block title %}Reject Article - NewsHub{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-red-50 via-white to-pink-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-2xl mx-auto">
+        <div class="text-center mb-8">
+            <div class="flex justify-center mb-4">
+                <div class="w-16 h-16 bg-gradient-to-r from-red-500 to-pink-500 rounded-2xl flex items-center justify-center">
+                    <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </div>
+            </div>
+            <h1 class="text-3xl font-display font-bold text-gray-900 mb-2">
+                Reject Article
+            </h1>
+            <p class="text-gray-600">
+                Provide feedback to help the author improve their content
+            </p>
+        </div>
+
+        <div class="bg-white rounded-3xl shadow-xl border border-gray-100 p-8 mb-6">
+            <div class="mb-6">
+                <h2 class="text-xl font-bold text-gray-900 mb-2">{{ article.title }}</h2>
+                {% if article.subtitle %}
+                    <p class="text-gray-600 mb-3">{{ article.subtitle }}</p>
+                {% endif %}
+                <div class="flex items-center space-x-4 text-sm text-gray-500 mb-4">
+                    <span>By {{ article.author.first_name }} {{ article.author.last_name }}</span>
+                    <span>{{ article.reading_time }} min read</span>
+                    <span>{{ article.word_count }} words</span>
+                </div>
+                {% if article.category %}
+                    <span class="bg-purple-100 text-purple-600 px-3 py-1 rounded-full text-sm font-medium">
+                        {{ article.category.name }}
+                    </span>
+                {% endif %}
+            </div>
+            
+            <div class="bg-gray-50 rounded-xl p-4 mb-6">
+                <h3 class="font-medium text-gray-900 mb-2">Article Preview:</h3>
+                <div class="text-gray-700 text-sm max-h-48 overflow-y-auto">
+                    {{ article.content|linebreaks|truncatewords:100 }}
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-3xl shadow-xl border border-gray-100 p-8">
+            <form method="post" class="space-y-6">
+                {% csrf_token %}
+                
+                <div>
+                    <label for="rejection_reason" class="block text-sm font-semibold text-gray-700 mb-2">
+                        Rejection Reason *
+                    </label>
+                    <textarea name="rejection_reason" id="rejection_reason" rows="6" required
+                              class="w-full p-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-red-500 focus:bg-white transition-all duration-200 bg-gray-50 resize-none text-gray-900"
+                              placeholder="Please provide specific feedback to help the author improve their article. Include issues with content quality, accuracy, appropriateness, formatting, or any other concerns..."></textarea>
+                    <p class="mt-2 text-sm text-gray-500">This feedback will be sent to the author to help them improve their content.</p>
+                </div>
+
+                <div class="bg-red-50 border border-red-200 rounded-xl p-4">
+                    <div class="flex">
+                        <svg class="h-5 w-5 text-red-400 mr-3 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <div>
+                            <h3 class="text-sm font-medium text-red-800 mb-1">Before rejecting, consider:</h3>
+                            <ul class="text-sm text-red-700 list-disc list-inside space-y-1">
+                                <li>Is the content inappropriate or harmful?</li>
+                                <li>Does it violate community guidelines?</li>
+                                <li>Is the quality below publication standards?</li>
+                                <li>Are there factual errors or misleading information?</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex flex-col sm:flex-row gap-4 pt-4">
+                    <button type="submit" class="bg-gradient-to-r from-red-600 to-pink-600 text-white py-3 px-8 rounded-full font-semibold hover:from-red-700 hover:to-pink-700 transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-105">
+                        ❌ Reject Article
+                    </button>
+                    <a href="{% url 'moderator_dashboard' %}" class="bg-gray-100 text-gray-700 py-3 px-8 rounded-full font-semibold hover:bg-gray-200 transition-colors text-center">
+                        Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
